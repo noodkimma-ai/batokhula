@@ -1,17 +1,9 @@
-
 "use client";
 
 import Link from "next/link";
 import { useState } from "react";
-import api from '../lib/api';
-import {
-  Form,
-  Input,
-  Button,
-  Typography,
-  Checkbox,
-  message,
-} from "antd";
+import api from "../lib/api";
+import { Form, Input, Button, Typography, Checkbox, message } from "antd";
 import {
   EnvironmentOutlined,
   MailOutlined,
@@ -20,11 +12,15 @@ import {
   SafetyCertificateOutlined,
 } from "@ant-design/icons";
 
+import { useRouter } from "next/navigation";
+
 const { Title, Text } = Typography;
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
+
+  const router = useRouter();
 
   const handleSubmit = async (values) => {
     setLoading(true);
@@ -36,12 +32,31 @@ export default function LoginPage() {
       //   remember: values.remember ?? false,
       // });
 
-      const response = await api.post("/auth/login",{
-        email:values.email,
-        password: values.password
-      })
+      const response = await api.post("/auth/login", {
+        email: values.email,
+        password: values.password,
+      });
 
       console.log(response.data);
+
+      const { token, user } = response.data;
+      const role = user.role;
+
+      sessionStorage.setItem("Token: ", token);
+
+      sessionStorage.setItem("user",JSON.stringify(user));
+
+      console.log("Role: ", role);
+
+      // if (role === "ADMIN") {
+      //   router.push("/dashboard/admin");
+      // } else if (role === "VERIFIER") {
+      //   router.push("/dashboard/verifier");
+      // } else if (role === "ROAD_REPORTER") {
+      //   router.push("/dashboard/reporter");
+      // } else {
+        router.push("/dashboard");
+      // }
     } catch {
       messageApi.error("Something went wrong. Please try again.");
     } finally {
@@ -70,9 +85,7 @@ export default function LoginPage() {
           </Link>
 
           <div className="relative z-10 max-w-lg">
-            <Text className="!text-blue-100">
-              YOUR JOURNEY STARTS HERE
-            </Text>
+            <Text className="!text-blue-100">YOUR JOURNEY STARTS HERE</Text>
 
             <Title
               level={1}
@@ -84,8 +97,8 @@ export default function LoginPage() {
             </Title>
 
             <p className="mt-6 text-lg leading-8 text-blue-100">
-              Sign in to check road conditions, see reported closures,
-              and find alternative routes before you travel.
+              Sign in to check road conditions, see reported closures, and find
+              alternative routes before you travel.
             </p>
 
             <div className="mt-10 rounded-2xl border border-white/20 bg-white/10 p-5 backdrop-blur-sm">
@@ -94,8 +107,8 @@ export default function LoginPage() {
                 Travel with confidence
               </h3>
               <p className="mt-2 leading-6 text-blue-100">
-                Stay informed about road disruptions and make smarter
-                travel decisions across Nepal.
+                Stay informed about road disruptions and make smarter travel
+                decisions across Nepal.
               </p>
             </div>
           </div>
@@ -212,8 +225,8 @@ export default function LoginPage() {
             </div>
 
             <p className="mt-8 text-center text-xs leading-5 text-slate-400">
-              Keep your account credentials secure. BatoKhula will help you
-              stay informed about road conditions and closures.
+              Keep your account credentials secure. BatoKhula will help you stay
+              informed about road conditions and closures.
             </p>
           </div>
         </div>

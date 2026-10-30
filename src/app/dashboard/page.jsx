@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useEffect, Children } from "react";
+
 import {
   Layout,
   Menu,
@@ -20,39 +22,14 @@ import {
   UserOutlined,
   LogoutOutlined,
   StarOutlined,
+  QuestionCircleOutlined,
+  BarChartOutlined,
 } from "@ant-design/icons";
 
 const { Header, Sider, Content, Footer } = Layout;
 
-const menuItems = [
-  {
-    key: "dashboard",
-    icon: <DashboardOutlined />,
-    label: "Dashboard",
-  },
-  {
-    key: "users",
-    icon: <TeamOutlined />,
-    label: "Users",
-  },
-  {
-    key: "reports",
-    icon: <FileTextOutlined />,
-    label: "Road Reports",
-  },
-  {
-    key: "roads",
-    icon: <EnvironmentOutlined />,
-    label: "Roads & Routes",
-  },
-  {
-    key: "settings",
-    icon: <SettingOutlined />,
-    label: "Settings",
-  },
-];
-
 export default function DashboardPage() {
+  const [user, setUser] = useState(null);
   const recentUsers = [
     {
       key: "1",
@@ -99,6 +76,137 @@ export default function DashboardPage() {
       key: "status",
     },
   ];
+
+  useEffect(() => {
+    const savedUser = sessionStorage.getItem("user");
+
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
+
+  const role = user?.role;
+
+  const menuItems = [
+    {
+      key: "dashboard",
+      icon: <DashboardOutlined />,
+      label: "Dashboard",
+    },
+    {
+      key: "users",
+      icon: <TeamOutlined />,
+      label: "Users",
+    },
+    {
+      key: "reports",
+      icon: <FileTextOutlined />,
+      label: "Road Reports",
+    },
+    {
+      key: "roads",
+      icon: <EnvironmentOutlined />,
+      label: "Roads & Routes",
+    },
+    {
+      key: "settings",
+      icon: <SettingOutlined />,
+      label: "Settings",
+    },
+    {
+      key: "notifications",
+      icon: <BellOutlined />,
+      label: "Notifications",
+    },
+    {
+      key: "profile",
+      icon: <UserOutlined />,
+      label: "My Profile",
+    },
+    {
+      key: "help",
+      icon: <QuestionCircleOutlined />,
+      label: "Help & Support",
+    },
+    {
+      key: "analytics",
+      icon: <BarChartOutlined />,
+      label: "Analytics",
+    },
+  ];
+
+  const roleMenuAccess = {
+    USER: [
+      "dashboard",
+      "roads",
+      "notifications",
+      "profile",
+      "settings",
+      "help",
+    ],
+    ROAD_REPORTER: [
+      "dashboard",
+      "roads",
+      "reports",
+      "notifications",
+      "profile",
+      "settings",
+      "help",
+    ],
+    VERIFIER: [
+      "dashboard",
+      "roads",
+      "reports",
+      "notifications",
+      "profile",
+      "settings",
+      "help",
+    ],
+    ADMIN: [
+      "dashboard",
+      "users",
+      "reports",
+      "roads",
+      "notifications",
+      "profile",
+      "settings",
+      "help",
+      "analytics",
+    ],
+  };
+
+  const visibleMenuItems = menuItems.filter((item) =>
+    roleMenuAccess[role]?.includes(item.key),
+  );
+
+  const groupMenuItems = [
+    {
+      type: "group",
+      label: "MAIN",
+      children: visibleMenuItems.filter((item) => item.key === "dashboard"),
+    },
+    {
+      type: "group",
+      label: "ROAD MANAGEMENT",
+      children: visibleMenuItems.filter((item) =>
+        ["roads", "reports"].includes(item.key),
+      ),
+    },
+    {
+      type: "group",
+      label: "ADMINISTRATION",
+      children: visibleMenuItems.filter((item) =>
+        ["users", "analytics"].includes(item.key),
+      ),
+    },
+    {
+      type: "group",
+      label: "ACCOUNT",
+      children: visibleMenuItems.filter((item) =>
+        ["notification", "profile", "setting", "help"].includes(item.key),
+      ),
+    },
+  ].filter((group) => group.children.length > 0);
   return (
     <Layout className="min-h-screen">
       <Header className="!fixed !inset-x-0 !top-0 !z-50 !flex !h-16 !items-center !justify-between !bg-white !px-4 !shadow-sm md:!px-6">
@@ -109,7 +217,7 @@ export default function DashboardPage() {
 
         <div className="flex items-center gap-3">
           <span className="hidden text-sm font-medium text-slate-700 sm:block">
-            Welcome, Admin!
+            {user ? ` Welcome, ${user.name}-${user.role} ` : "Welcome!"}
           </span>
 
           <Badge dot>
@@ -147,7 +255,7 @@ export default function DashboardPage() {
           <Menu
             mode="inline"
             selectedKeys={["dashboard"]}
-            items={menuItems}
+            items={groupMenuItems}
             className="!border-none !pt-4"
           />
         </Sider>

@@ -15,7 +15,7 @@ import {
 } from "@ant-design/icons";
 import Password from "antd/es/input/Password";
 
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const { Title, Text } = Typography;
 
@@ -23,8 +23,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
 
-  const router = useRouter()
-
+  const router = useRouter();
 
   const handleRegister = async (values) => {
     setLoading(true);
@@ -41,25 +40,20 @@ export default function RegisterPage() {
       //   "Registration form is ready. Backend connection is the next step.",
       // );
 
-
-      const response = await api.post(
-        "/auth/register",{
-          name: values.name, 
-          email: values.email,
-          password: values.password,
-        }
-        
-      );
+      const response = await api.post("/auth/register", {
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      });
 
       messageApi.success("Registration successfully!");
 
       // console.log(response.data);
 
       router.push(
-        `/login?email=${encodeURIComponent(values.email.trim().toLowerCase())}`
-      )
-    } catch (error){
-
+        `/login?email=${encodeURIComponent(values.email.trim().toLowerCase())}`,
+      );
+    } catch (error) {
       console.error("Registration Error", error);
       console.error("Backend Response", error.response?.data);
       messageApi.error("Something went wrong. Please try again.");
@@ -212,7 +206,12 @@ export default function RegisterPage() {
               >
                 <Select
                   options={[
+                    { value: "ADMIN", label: "ADMIN" },
                     { value: "USER", label: "Road User" },
+                    {
+                      value: "ROAD_REPORTER",
+                      label: "Road Reporter",
+                    },
                     {
                       value: "VERIFIER",
                       label: "Road Verifier — Approval Required",
