@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect, Children } from "react";
+import { useState, useEffect } from "react";
+
+import {useRouter} from "next/navigation";
 
 import {
   Layout,
@@ -30,6 +32,8 @@ const { Header, Sider, Content, Footer } = Layout;
 
 export default function DashboardPage() {
   const [user, setUser] = useState(null);
+
+  const router = useRouter();
   const recentUsers = [
     {
       key: "1",
@@ -207,6 +211,12 @@ export default function DashboardPage() {
       ),
     },
   ].filter((group) => group.children.length > 0);
+
+  const handleLogout=()=>{
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
+    router.push("/");
+  }
   return (
     <Layout className="min-h-screen">
       <Header className="!fixed !inset-x-0 !top-0 !z-50 !flex !h-16 !items-center !justify-between !bg-white !px-4 !shadow-sm md:!px-6">
@@ -242,6 +252,7 @@ export default function DashboardPage() {
             shape="circle"
             icon={<LogoutOutlined />}
             aria-label="Logout"
+            onClick={handleLogout}
           />
         </div>
       </Header>
